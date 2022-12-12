@@ -1,10 +1,8 @@
 import React, { forwardRef, useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 
 import {
-  createStyles,
   Header,
   Group,
   Box,
@@ -77,40 +75,41 @@ function App() {
   const [username, setUsername] = useState<string | null>(null)
   const [comments, setComments] = useState<any>([])
 
-
   const handleSubmit = async (e: any) => {
     var postedAt = new Date().toLocaleTimeString("en-US");
     var userImage = ''
 
-    switch (username) {
-      case 'Daniel':
-        userImage = 'https://img.icons8.com/clouds/256/000000/futurama-bender.png'
-        break;
-      case 'Krzysiem':
-        userImage = 'https://img.icons8.com/clouds/256/000000/futurama-mom.png'
-        break;
-      case 'Nomysz':
-        userImage = 'https://img.icons8.com/clouds/256/000000/homer-simpson.png'
-        break;
-      default:
-    }
-
-
-    e.preventDefault()
-    try {
-      await addDoc(collection(db, 'comment'), {
-        postedAt: postedAt,
-        body: value,
-        name: username,
-        image: userImage
-      })
-      
-      setValue('')
-      setUsername('')
-
-
-    } catch (err) {
-      alert(err)
+    if(username){
+      switch (username) {
+        case 'Daniel':
+          userImage = 'https://img.icons8.com/clouds/256/000000/futurama-bender.png'
+          break;
+        case 'Krzysiem':
+          userImage = 'https://img.icons8.com/clouds/256/000000/futurama-mom.png'
+          break;
+        case 'Nomysz':
+          userImage = 'https://img.icons8.com/clouds/256/000000/homer-simpson.png'
+          break;
+        default:
+      }
+  
+  
+      e.preventDefault()
+      try {
+        await addDoc(collection(db, 'comment'), {
+          postedAt: postedAt,
+          body: value,
+          name: username,
+          image: userImage
+        })
+        
+        setValue('')
+        setUsername('')
+  
+  
+      } catch (err) {
+        alert(err)
+      }
     }
   }
 
@@ -163,7 +162,7 @@ function App() {
           pb={10} 
           size='md'
           label="Wybierz użytkownika"
-          placeholder="Pick one"
+          placeholder="Wybierz"
           itemComponent={SelectItem}
           data={dataSet}
           searchable
@@ -176,7 +175,7 @@ function App() {
       </Grid>
 
     <Button variant="outline" color="dark" size="md" onClick={handleSubmit}>
-      Dodaj
+      Wyślij
     </Button>
     <Space h="xl" />
     {listItems}
