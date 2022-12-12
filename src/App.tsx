@@ -14,19 +14,14 @@ import {
   Text,
   Select,
   Title,
-  createStyles,
-  MediaQuery,
 } from '@mantine/core'
 import { Comment } from './components/comment';
 
-import {db} from './firebase'
+import {db, signInWithGoogle} from './firebase'
 import {collection, addDoc,  query, orderBy, onSnapshot} from 'firebase/firestore'
 
 import { useState } from 'react';
 
-const useStyles = createStyles((theme) => ({
-
-}));
 
 const dataSet = [
   {
@@ -82,7 +77,8 @@ function App() {
   const [comments, setComments] = useState<any>([])
 
   const handleSubmit = async (e: any) => {
-    var postedAt = new Date().toLocaleTimeString("en-US");
+    var postedAt = new Date().toLocaleString("en-US");
+    console.log(postedAt)
     var userImage = ''
 
     if(username){
@@ -108,10 +104,8 @@ function App() {
           name: username,
           image: userImage
         })
-        
         setValue('')
         setUsername('')
-  
   
       } catch (err) {
         alert(err)
@@ -129,7 +123,6 @@ function App() {
     })
   },[])
 
-
   const listItems = comments.map((comment: any) =>
   <>
       <Comment key={comment.toString()} postedAt={comment.data.postedAt} body={comment.data.body} author={{
@@ -138,55 +131,62 @@ function App() {
       }} />
       <Space h="md" />
   </>
+
+
+  
+
 );
 
   return (
     
     <Box pb={120}>
-    <Header height={60} px="lg">
-      <Group position="center" sx={{ height: '100%' }}>
-        <Group sx={{ height: '100%' }} spacing={0}>
-        <Title order={3}> Commenter <Text span c="blue" inherit> Application</Text></Title>
+      <Header height={60} px="lg">
+        <Group sx={{ height: '100%',display: 'flex',justifyContent: 'space-between', alignItems: 'center' }}>
+          <div></div>
+          <Title order={3}> Commenter <Text span c="blue" inherit> Application</Text></Title>
+          <Button onClick={signInWithGoogle}>Log in</Button>
         </Group>
-      </Group>
-    </Header>
-    <Container my="md">
-      <Grid>
-        <Grid.Col span={largeScreen ? 9 : 12}>
-        <TextInput 
-          pt={20} 
-          pb={largeScreen ? 10 : 0} 
-          size='md' 
-          label="Dodaj komentarz:" 
-          placeholder="" 
-          value={value} onChange={(event) => setValue(event.currentTarget.value)} 
-        />
-        </Grid.Col>
-        <Grid.Col span={largeScreen ? 3 : 12}>
-        <Select
-          pt={largeScreen ? 20 : 0} 
-          pb={10} 
-          size='md'
-          label="Wybierz użytkownika"
-          placeholder="Wybierz"
-          itemComponent={SelectItem}
-          data={dataSet}
-          searchable
-          maxDropdownHeight={400}
-          nothingFound="Nobody here"
-          value={username} 
-          onChange={setUsername}
-        />
-        </Grid.Col>
-      </Grid>
-    <Button variant="outline" color="dark" size="md" onClick={handleSubmit}>
-      Wyślij
-    </Button>
-    <Space h="xl" />
-    {listItems}
-    </Container>
+      </Header>
+      <Container my="md">
+        <Grid>
+          <Grid.Col span={largeScreen ? 9 : 12}>
+          <TextInput 
+            pt={20} 
+            pb={largeScreen ? 10 : 0} 
+            size='md' 
+            label="Dodaj komentarz:" 
+            placeholder="" 
+            value={value} onChange={(event) => setValue(event.currentTarget.value)} 
+          />
+          </Grid.Col>
+          <Grid.Col span={largeScreen ? 3 : 12}>
+          <Select
+            pt={largeScreen ? 20 : 0} 
+            pb={10} 
+            size='md'
+            label="Wybierz użytkownika"
+            placeholder="Wybierz"
+            itemComponent={SelectItem}
+            data={dataSet}
+            searchable
+            maxDropdownHeight={400}
+            nothingFound="Nobody here"
+            value={username} 
+            onChange={setUsername}
+          />
+          </Grid.Col>
+        </Grid>
+      <Button variant="outline" color="dark" size="md" onClick={handleSubmit}>
+        Wyślij
+      </Button>
+      <Space h="xl" />
+      {listItems}
+      </Container>
+    </Box>
 
-  </Box>
+
+
+
   );
 }
 
