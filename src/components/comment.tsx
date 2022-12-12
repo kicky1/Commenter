@@ -1,5 +1,4 @@
 import { createStyles, Text, Avatar, Group, TypographyStylesProvider, Paper } from '@mantine/core';
-import React from 'react';
 
 const useStyles = createStyles((theme) => ({
   comment: {

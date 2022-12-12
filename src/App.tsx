@@ -1,7 +1,6 @@
 import React, { forwardRef, useEffect } from 'react';
 import './App.css';
-
-
+import { useMediaQuery } from '@mantine/hooks';
 import {
   Header,
   Group,
@@ -15,6 +14,8 @@ import {
   Text,
   Select,
   Title,
+  createStyles,
+  MediaQuery,
 } from '@mantine/core'
 import { Comment } from './components/comment';
 
@@ -22,6 +23,10 @@ import {db} from './firebase'
 import {collection, addDoc,  query, orderBy, onSnapshot} from 'firebase/firestore'
 
 import { useState } from 'react';
+
+const useStyles = createStyles((theme) => ({
+
+}));
 
 const dataSet = [
   {
@@ -71,6 +76,7 @@ const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
 
 
 function App() {
+  const largeScreen = useMediaQuery('(min-width: 900px)');
   const [value, setValue] = useState('');
   const [username, setUsername] = useState<string | null>(null)
   const [comments, setComments] = useState<any>([])
@@ -146,19 +152,19 @@ function App() {
     </Header>
     <Container my="md">
       <Grid>
-        <Grid.Col span={9}>
+        <Grid.Col span={largeScreen ? 9 : 12}>
         <TextInput 
           pt={20} 
-          pb={10} 
+          pb={largeScreen ? 10 : 0} 
           size='md' 
           label="Dodaj komentarz:" 
           placeholder="" 
           value={value} onChange={(event) => setValue(event.currentTarget.value)} 
         />
         </Grid.Col>
-        <Grid.Col span={3}>
+        <Grid.Col span={largeScreen ? 3 : 12}>
         <Select
-          pt={20} 
+          pt={largeScreen ? 20 : 0} 
           pb={10} 
           size='md'
           label="Wybierz użytkownika"
@@ -173,7 +179,6 @@ function App() {
         />
         </Grid.Col>
       </Grid>
-
     <Button variant="outline" color="dark" size="md" onClick={handleSubmit}>
       Wyślij
     </Button>
