@@ -25,9 +25,10 @@ interface CommentHtmlProps {
     name: string;
     image: string;
   };
+  poked: string
 }
 
-export function Comment({ postedAt, body, author }: CommentHtmlProps) {
+export function Comment({ postedAt, body, author, poked }: CommentHtmlProps) {
   const { classes } = useStyles();
   return (
     <Paper withBorder radius="md" className={classes.comment}>
@@ -38,6 +39,10 @@ export function Comment({ postedAt, body, author }: CommentHtmlProps) {
           <Text size="sm" color="dimmed">
             {postedAt}
           </Text>
+          <Group>
+          <Text size="sm">Odnośnie:</Text><Text size="sm" color="dimmed">{poked}</Text>
+          </Group>
+
         </div>
       
       <TypographyStylesProvider className={classes.body}>
