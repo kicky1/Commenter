@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp} from "firebase/app";
 import { collection, getFirestore, where, query, getDocs, addDoc} from "firebase/firestore";
-import { FacebookAuthProvider, getAuth, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup} from "firebase/auth";
 import { setVisible } from "./zustand/useAuthorizationFormStore";
 import { setAuthorized, setUserImage, setUsername } from "./zustand/useAuthorizationStore";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -25,7 +25,6 @@ const db = getFirestore(app)
 const auth = getAuth(app);
 
 const googleProvider = new GoogleAuthProvider();
-const facebookProvider = new FacebookAuthProvider();
 
 const signInWithGoogle = async () => {
   try {
@@ -54,31 +53,45 @@ const signInWithGoogle = async () => {
 };
 
 
-const signInWithFacebook = async () => {
+const createUserAccountWithEmailAndPassword = async (email:any, password:any, name:any) => {
   try {
-    await signInWithPopup(auth, facebookProvider).then(async (res) => {
-      const user = res.user;
-      const q = query(collection(db, "users"), where("uid", "==", user.uid));
-      const docs = await getDocs(q);
-      if (docs.docs.length === 0) {
-        await addDoc(collection(db, "users"), {
-          uid: user.uid,
-          name: user.displayName,
-          authProvider: "google",
-          email: user.email,
-        });
-      }
-
-      setVisible(false)
-      setUsername(res.user.displayName ? res.user.displayName : res.user.email)
-      setAuthorized(true)
-      setUserImage(res.user.photoURL)
-      console.log(res)
-    });
-
-  } catch (err) {
-    console.error(err);
+    const res = await createUserWithEmailAndPassword(auth, email, password)
+    const user = res.user;
+    const q = query(collection(db, "users"), where("uid", "==", user.uid));
+    const docs = await getDocs(q);
+    if (docs.docs.length === 0) {
+      await addDoc(collection(db, "users"), {
+        uid: user.uid,
+        name: name,
+        authProvider: "email",
+        email: user.email,
+      });
+    }
+    setVisible(false)
+    setUsername(name)
+    setAuthorized(true)
+    setUserImage(res.user.photoURL)
+    console.log(res)
+  } catch (err: any) {
+    console.log(err.code)
+    return err.code
   }
 };
 
-export { db, auth, signInWithGoogle, signInWithFacebook};
+
+const signUserAccountWithEmailAndPassword = async (email:any, password:any) => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password).then(async (res) => {
+      setVisible(false)
+      setUsername(res.user.displayName)
+      setAuthorized(true)
+      setUserImage(res.user.photoURL)
+    });
+  } catch (err: any) {
+    console.log(err.errors.message)
+  }
+};
+
+
+
+export { db, auth, signInWithGoogle, createUserAccountWithEmailAndPassword, signUserAccountWithEmailAndPassword};

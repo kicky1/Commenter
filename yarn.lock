@@ -2480,6 +2480,11 @@
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
 
+"@tabler/icons@^1.117.0":
+  version "1.117.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-1.117.0.tgz#2ffafca94f868940cf84a839e284c243e095c45a"
+  integrity sha512-4UGF8fMcROiy++CCNlzTz6p22rxFQD/fAMfaw/8Uanopl41X2SCZTmpnotS3C6Qdrk99m8eMZySa5w1y99gFqQ==
+
 "@testing-library/dom@^8.5.0":
   version "8.19.0"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.19.0.tgz#bd3f83c217ebac16694329e413d9ad5fdcfd785f"

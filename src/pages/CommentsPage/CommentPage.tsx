@@ -17,7 +17,7 @@ import {
 } from '@mantine/core'
 import { Comment } from '../../components/Comment/comment';
 
-import {db, signInWithFacebook, signInWithGoogle} from '../../firebase'
+import {db, signInWithGoogle} from '../../firebase'
 import {collection, addDoc,  query, orderBy, onSnapshot} from 'firebase/firestore'
 import { useState } from 'react';
 import { AuthenticationForm } from '../../components/AuthenticationForm/AuthenticationForm';
@@ -83,21 +83,7 @@ function CommentPage() {
   const sendMessage = async (e: any) => {
     var postedAt = new Date().toLocaleString("en-US");
     console.log(postedAt)
-
     if(poked){
-      // switch (username) {
-      //   case 'Daniel':
-      //     userImage = 'https://img.icons8.com/clouds/256/000000/futurama-bender.png'
-      //     break;
-      //   case 'Krzysiem':
-      //     userImage = 'https://img.icons8.com/clouds/256/000000/futurama-mom.png'
-      //     break;
-      //   case 'Nomysz':
-      //     userImage = 'https://img.icons8.com/clouds/256/000000/homer-simpson.png'
-      //     break;
-      //   default:
-      // }
-  
       e.preventDefault()
       try {
         await addDoc(collection(db, 'comment'), {
@@ -205,7 +191,6 @@ function CommentPage() {
         <Group position="center">
         <AuthenticationForm 
           googlelogin = {signInWithGoogle}
-          facebooklogin = {signInWithFacebook}
           email={''} 
           name={''} 
           password={''} 
