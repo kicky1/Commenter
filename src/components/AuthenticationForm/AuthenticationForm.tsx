@@ -21,12 +21,11 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import {RxCross1} from 'react-icons/rx'
 import { setVisible } from '../../zustand/useAuthorizationFormStore';
-import { createUserAccountWithEmailAndPassword, signUserAccountWithEmailAndPassword } from '../../firebase';
+import { createUserAccountWithEmailAndPassword, signInWithGoogle, signUserAccountWithEmailAndPassword } from '../../firebase';
 import { IconX } from '@tabler/icons';
 import { useEffect, useState } from 'react';
 
 interface Props extends PaperProps {
-  googlelogin: () => any,
   email: string,
   name: string,
   password: string,
@@ -89,7 +88,7 @@ export function AuthenticationForm(props: Props) {
         <Grid.Col span={4}></Grid.Col>
         <Grid.Col span={4}>
         <Group grow mt="md">
-          <ActionIcon onClick={props.googlelogin} color="blue" size="lg" radius="md" variant="outline">
+          <ActionIcon onClick={signInWithGoogle} color="blue" size="lg" radius="md" variant="outline">
             <FcGoogle/>
           </ActionIcon>
           </Group>

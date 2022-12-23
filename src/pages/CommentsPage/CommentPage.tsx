@@ -18,11 +18,14 @@ import {
 import { Comment } from '../../components/Comment/comment';
 
 import {db, signInWithGoogle} from '../../firebase'
-import {collection, addDoc,  query, orderBy, onSnapshot} from 'firebase/firestore'
+import {collection, addDoc,  query, orderBy, onSnapshot, getDoc, where, doc, getDocs} from 'firebase/firestore'
 import { useState } from 'react';
 import { AuthenticationForm } from '../../components/AuthenticationForm/AuthenticationForm';
 import { setVisible, useAuthorizationFormStore } from '../../zustand/useAuthorizationFormStore';
 import { logoutUser, setUsername, useAuthorizationStore } from '../../zustand/useAuthorizationStore';
+import { cursedWords } from '../../components/Comment/cursedWordsDataset';
+
+
 
 const dataSet = [
   {
@@ -47,6 +50,8 @@ const dataSet = [
 ];
 
 
+
+
 interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
   image: string;
   label: string;
@@ -69,26 +74,42 @@ const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
   )
 );
 
-
+var Filter = require('bad-words');
+const filter = new Filter();
+filter.addWords(...cursedWords); 
 
 function CommentPage() {
   const largeScreen = useMediaQuery('(min-width: 900px)');
   const [value, setValue] = useState('');
   const [poked, setPoked] = useState<string | null>(null)
   const [comments, setComments] = useState<any>([])
+  const [users, setUsers] = useState<any>([])
   const isVisible = useAuthorizationFormStore((state) => state.isVisible)
   const authorized = useAuthorizationStore((state) => state.authorized)
   const username = useAuthorizationStore((state) => state.username)
   const userImage = useAuthorizationStore((state) => state.userimage)
+
+  const getUsers = async () => { 
+    const usersTable: any = []
+    const querySnapshot = await getDocs(collection(db, "users"));
+    querySnapshot.forEach((doc) => {
+      usersTable.push(doc.data())
+    });
+    setUsers(users)
+  }
+
+  
+
   const sendMessage = async (e: any) => {
     var postedAt = new Date().toLocaleString("en-US");
     console.log(postedAt)
     if(poked){
       e.preventDefault()
       try {
+        
         await addDoc(collection(db, 'comment'), {
           postedAt: postedAt,
-          body: value,
+          body: filter.clean(value),
           name: username,
           image: userImage,
           poked: poked
@@ -110,6 +131,10 @@ function CommentPage() {
       })))
     })
   },[])
+
+  useEffect(() => {
+    getUsers()
+  }, []);
 
   const listItems = comments.map((comment: any) =>
   <>
@@ -190,7 +215,6 @@ function CommentPage() {
         {isVisible ? 
         <Group position="center">
         <AuthenticationForm 
-          googlelogin = {signInWithGoogle}
           email={''} 
           name={''} 
           password={''} 
