@@ -33,11 +33,14 @@ const signInWithGoogle = async () => {
       const q = query(collection(db, "users"), where("uid", "==", user.uid));
       const docs = await getDocs(q);
       if (docs.docs.length === 0) {
+        const nameArray = user.displayName ? user.displayName.split(" ", 2): 'User';
         await addDoc(collection(db, "users"), {
           uid: user.uid,
           name: user.displayName,
           authProvider: "google",
           email: user.email,
+          label: nameArray[1],
+          value: nameArray[1]
         });
       }
 

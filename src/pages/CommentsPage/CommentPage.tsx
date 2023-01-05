@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef, Suspense, useEffect } from 'react';
 import { useMediaQuery } from '@mantine/hooks';
 import {
   Header,
@@ -17,62 +17,16 @@ import {
 } from '@mantine/core'
 import { Comment } from '../../components/Comment/comment';
 
-import {db, signInWithGoogle} from '../../firebase'
-import {collection, addDoc,  query, orderBy, onSnapshot, getDoc, where, doc, getDocs} from 'firebase/firestore'
+import {db} from '../../firebase'
+import {collection, addDoc,  query, orderBy, onSnapshot, getDoc, where, doc, getDocs, DocumentData} from 'firebase/firestore'
 import { useState } from 'react';
 import { AuthenticationForm } from '../../components/AuthenticationForm/AuthenticationForm';
 import { setVisible, useAuthorizationFormStore } from '../../zustand/useAuthorizationFormStore';
-import { logoutUser, setUsername, useAuthorizationStore } from '../../zustand/useAuthorizationStore';
+import { logoutUser, useAuthorizationStore } from '../../zustand/useAuthorizationStore';
 import { cursedWords } from '../../components/Comment/cursedWordsDataset';
+import UserMenu from '../../components/UserMenu/UserMenu';
+import { setPokedUser, useUserMenuStore } from '../../zustand/useUserMenuStore';
 
-
-
-const dataSet = [
-  {
-    image: 'https://img.icons8.com/clouds/256/000000/futurama-bender.png',
-    label: 'Daniel',
-    value: 'Daniel',
-    description: 'Lubi dupnąć sobie w lolka',
-  },
-
-  {
-    image: 'https://img.icons8.com/clouds/256/000000/futurama-mom.png',
-    label: 'Krzysiem',
-    value: 'Krzysiem',
-    description: 'Tft to jego pasja',
-  },
-  {
-    image: 'https://img.icons8.com/clouds/256/000000/homer-simpson.png',
-    label: 'Nomysz',
-    value: 'Nomysz',
-    description: 'Kiedyś długo stał na rękach',
-  }
-];
-
-
-
-
-interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
-  image: string;
-  label: string;
-  description: string;
-}
-
-const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
-  ({ image, label, description, ...others }: ItemProps, ref) => (
-    <div ref={ref} {...others}>
-      <Group noWrap>
-        <Avatar src={image} />
-        <div>
-          <Text size="sm">{label}</Text>
-          <Text size="xs" opacity={0.65}>
-            {description}
-          </Text>
-        </div>
-      </Group>
-    </div>
-  )
-);
 
 var Filter = require('bad-words');
 const filter = new Filter();
@@ -81,29 +35,18 @@ filter.addWords(...cursedWords);
 function CommentPage() {
   const largeScreen = useMediaQuery('(min-width: 900px)');
   const [value, setValue] = useState('');
-  const [poked, setPoked] = useState<string | null>(null)
+  const pokedUser = useUserMenuStore((state) => state.pokedUser)
   const [comments, setComments] = useState<any>([])
-  const [users, setUsers] = useState<any>([])
   const isVisible = useAuthorizationFormStore((state) => state.isVisible)
   const authorized = useAuthorizationStore((state) => state.authorized)
   const username = useAuthorizationStore((state) => state.username)
   const userImage = useAuthorizationStore((state) => state.userimage)
 
-  const getUsers = async () => { 
-    const usersTable: any = []
-    const querySnapshot = await getDocs(collection(db, "users"));
-    querySnapshot.forEach((doc) => {
-      usersTable.push(doc.data())
-    });
-    setUsers(users)
-  }
-
   
-
   const sendMessage = async (e: any) => {
     var postedAt = new Date().toLocaleString("en-US");
-    console.log(postedAt)
-    if(poked){
+    console.log(pokedUser)
+    if(pokedUser){
       e.preventDefault()
       try {
         
@@ -112,10 +55,11 @@ function CommentPage() {
           body: filter.clean(value),
           name: username,
           image: userImage,
-          poked: poked
+          poked: pokedUser
         })
-        setValue('') 
-        setPoked('') 
+        setPokedUser(null)
+        setValue('')
+
       } catch (err) {
         alert(err)
       }
@@ -125,16 +69,13 @@ function CommentPage() {
   useEffect(() => {
     const q = query(collection(db, 'comment'), orderBy('postedAt', 'desc'))
     onSnapshot(q, (querySnapshot) => {
-      setComments(querySnapshot.docs.map(doc => ({
+      setComments(querySnapshot.docs.map((doc) => ({
         id: doc.id,
         data: doc.data()
       })))
     })
   },[])
 
-  useEffect(() => {
-    getUsers()
-  }, []);
 
   const listItems = comments.map((comment: any) =>
   <>
@@ -182,19 +123,7 @@ function CommentPage() {
                   value={value} onChange={(event) => setValue(event.currentTarget.value)} />
               </Grid.Col>
               <Grid.Col span={largeScreen ? 3 : 12}>
-                <Select
-                  pt={largeScreen ? 20 : 0}
-                  pb={10}
-                  size='md'
-                  label="Wybierz użytkownika"
-                  placeholder="Wybierz"
-                  itemComponent={SelectItem}
-                  data={dataSet}
-                  searchable
-                  maxDropdownHeight={400}
-                  nothingFound="Nobody here"
-                  value={poked}
-                  onChange={setPoked} />
+                <UserMenu/>
               </Grid.Col>
             </Grid>
             <Button variant="outline" color="dark" size="md" onClick={sendMessage}>
